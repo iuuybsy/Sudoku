@@ -1,6 +1,7 @@
-#include <iostream>
+#include "functions.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    auto test = generate_full_sudoku_table();
+    print_sudoku_table(test);
     return 0;
 }

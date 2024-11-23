@@ -3,4 +3,8 @@ project(Sudoku)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Sudoku main.cpp)
+add_executable(Sudoku main.cpp
+        functions.h
+        functions.cpp
+        utilities.h
+        utilities.cpp)
