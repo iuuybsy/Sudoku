@@ -1,35 +1,7 @@
 #include "utilities.h"
 
-#include <iostream>
-#include <random>
-#include <chrono>
-
 const int N = 9;
 const int DIRECTIONS[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-
-void print_table(const vector<vector<int>> &table) {
-    for (const auto & vec : table) {
-        for (int element : vec) {
-            std::cout << element << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-void print_vector(const vector<int> &vec) {
-    for (int element : vec) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl;
-}
-
-int random_valid_int(int min_val, int max_val) {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine rng(seed);
-    std::uniform_int_distribution<int> dist(min_val, max_val);
-    int random_num = dist(rng);
-    return random_num;
-}
 
 bool is_valid(const vector<vector<int>> &sudoku, int row, int col, int num) {
     for (int i = 0; i < N; ++i) {
@@ -76,3 +48,80 @@ void dfs_generate(vector<vector<int>> &sudoku, vector<vector<bool>> &unvisited,
         --settles_num;
     }
 }
+
+bool is_sudoku_valid(const vector<vector<int>> &sudoku) {
+    int count[9] = {0};
+    for (int i = 0; i != N; ++i) {
+        for (int j = 0; j != N; ++j) {
+            if (sudoku[i][j] == 0)
+                return false;
+            ++count[sudoku[i][j]];
+            if (count[sudoku[i][j]] > N)
+                return false;
+            if (!is_valid(sudoku, i, j, sudoku[i][j]))
+                return false;
+        }
+    }
+    return true;
+}
+
+void dfs_solve(vector<vector<int>> &sudoku, const vector<vector<int>> &blank_index,
+               vector<vector<int>> &solutions, std::map<int, int> &num_count,
+               const vector<int> &numbers, int index, int &settled_num) {
+    if (settled_num == N * N) {
+        vector<int> cur_solution(blank_index.size(), 0);
+        for (int i = 0; i != blank_index.size(); ++i) {
+            cur_solution[i] = sudoku[blank_index[i][0]][blank_index[i][1]];
+        }
+        solutions.push_back(cur_solution);
+        return;
+    }
+    if (index >= blank_index.size())
+        return;
+    for (int num : numbers) {
+        if (num_count[num] == N)
+            continue;
+        if (is_valid(sudoku, blank_index[index][0], blank_index[index][1], num)) {
+            sudoku[blank_index[index][0]][blank_index[index][1]] = num;
+            ++num_count[num];
+            ++settled_num;
+            dfs_solve(sudoku, blank_index, solutions, num_count,
+                      numbers, index + 1, settled_num);
+            --settled_num;
+            --num_count[sudoku[blank_index[index][0]][blank_index[index][1]]];
+            sudoku[blank_index[index][0]][blank_index[index][1]] = 0;
+        }
+    }
+}
+
+int num_of_solutions(vector<vector<int>> &sudoku) {
+    vector<vector<int>> blank_index;
+    int settled_num = 0;
+    std::map<int, int> num_count;
+
+    for (int i = 0; i != N; ++i) {
+        for (int j = 0; j!= N; ++j) {
+            if (sudoku[i][j] == 0) {
+                blank_index.push_back({i, j});
+            }
+            else {
+                ++settled_num;
+                ++num_count[sudoku[i][j]];
+            }
+        }
+    }
+
+    vector<int> numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    vector<vector<int>> solutions;
+
+    dfs_solve(sudoku, blank_index, solutions,
+              num_count, numbers, 0, settled_num);
+
+    for (auto cord : blank_index)
+        sudoku[cord[0]][cord[1]] = 0;
+
+    return solutions.size();
+}
+
+
+
