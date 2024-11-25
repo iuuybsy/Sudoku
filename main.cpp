@@ -1,7 +1,4 @@
 #include "functions.h"
-#include "utilities.h"
-
-#include <iostream>
 
 const int N = 9;
 
