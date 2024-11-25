@@ -68,14 +68,40 @@ vector<vector<int>> generate_full_sudoku_table() {
     return sudoku_table;
 }
 
-vector<vector<int>> generate_sudoku_problem() {
+vector<vector<int>> generate_sudoku_problem(int number_of_holes) {
+    vector<vector<int>> sudoku_table = generate_full_sudoku_table();
+    if (number_of_holes > N * N) {
+        std::cout << "Number of holes is too large!" << std::endl;
+        return sudoku_table;
+    }
 
+    std::default_random_engine gen(std::random_device{}());
+    std::uniform_int_distribution<> dis(0, N - 1);
+
+    while (number_of_holes > 0) {
+        int row = dis(gen);
+        int col = dis(gen);
+        while (sudoku_table[row][col] == 0) {
+            row = dis(gen);
+            col = dis(gen);
+        }
+        sudoku_table[row][col] = 0;
+        --number_of_holes;
+    }
+
+    return sudoku_table;
 }
 
-void solve_sudoku(vector<vector<int>> &sudoku_table, vector<vector<bool>> &is_result) {
+void solve_sudoku(vector<vector<int>> &sudoku_table) {
+    if (!is_sudoku_valid(sudoku_table)) {
+        std::cout << "Sudoku table is invalid!" << std::endl;
+        return;
+    }
+
     vector<vector<int>> blank_index;
     int settled_num = 0;
     std::map<int, int> num_count;
+    vector<vector<bool>> is_result(N, vector<bool>(N, false));
 
     for (int i = 0; i != N; ++i) {
         for (int j = 0; j!= N; ++j) {

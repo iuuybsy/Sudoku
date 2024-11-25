@@ -24,6 +24,5 @@ bool is_sudoku_valid(const vector<vector<int>> &sudoku);
 void dfs_solve(vector<vector<int>> &sudoku, const vector<vector<int>> &blank_index,
                vector<vector<int>> &solutions, std::map<int, int> &num_count,
                const vector<int> &numbers, int index, int &settled_num);
-int num_of_solutions(vector<vector<int>> &sudoku);
 
 #endif //SUDOKU_UTILITIES_H

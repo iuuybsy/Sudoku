@@ -4,14 +4,18 @@ const int N = 9;
 const int DIRECTIONS[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 
 bool is_valid(const vector<vector<int>> &sudoku, int row, int col, int num) {
-    for (int i = 0; i < N; ++i) {
-        if (sudoku[row][i] == num || sudoku[i][col] == num)
+    for (int i = 0; i != N; ++i) {
+        if (i != col && sudoku[row][i] == num)
+            return false;
+        if (i != row && sudoku[i][col] == num)
             return false;
     }
     int block_row = row / 3;
     int block_col = col / 3;
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
+    for (int i = 0; i != 3; ++i) {
+        for (int j = 0; j != 3; ++j) {
+            if (block_row * 3 + i == row && block_col * 3 + j == col)
+                continue;
             if (sudoku[block_row * 3 + i][block_col * 3 + j] == num)
                 return false;
         }
@@ -50,11 +54,11 @@ void dfs_generate(vector<vector<int>> &sudoku, vector<vector<bool>> &unvisited,
 }
 
 bool is_sudoku_valid(const vector<vector<int>> &sudoku) {
-    int count[9] = {0};
+    int count[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     for (int i = 0; i != N; ++i) {
         for (int j = 0; j != N; ++j) {
             if (sudoku[i][j] == 0)
-                return false;
+                continue;
             ++count[sudoku[i][j]];
             if (count[sudoku[i][j]] > N)
                 return false;
@@ -93,35 +97,4 @@ void dfs_solve(vector<vector<int>> &sudoku, const vector<vector<int>> &blank_ind
         }
     }
 }
-
-int num_of_solutions(vector<vector<int>> &sudoku) {
-    vector<vector<int>> blank_index;
-    int settled_num = 0;
-    std::map<int, int> num_count;
-
-    for (int i = 0; i != N; ++i) {
-        for (int j = 0; j!= N; ++j) {
-            if (sudoku[i][j] == 0) {
-                blank_index.push_back({i, j});
-            }
-            else {
-                ++settled_num;
-                ++num_count[sudoku[i][j]];
-            }
-        }
-    }
-
-    vector<int> numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    vector<vector<int>> solutions;
-
-    dfs_solve(sudoku, blank_index, solutions,
-              num_count, numbers, 0, settled_num);
-
-    for (auto cord : blank_index)
-        sudoku[cord[0]][cord[1]] = 0;
-
-    return solutions.size();
-}
-
-
 
